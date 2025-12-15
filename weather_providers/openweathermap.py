@@ -78,22 +78,41 @@ class OpenWeatherMap(BaseWeatherProvider):
 
         return icon
 
+    
+    
     # Get weather from OpenWeatherMap One Call
     # https://openweathermap.org/api/one-call-api
     def get_weather(self):
-
-        url = ("https://api.openweathermap.org/data/2.5/onecall?lat={}&lon={}&exclude=current,minutely,hourly&units={}&appid={}"
+    
+        url = ("https://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&exclude=current,minutely,hourly&units={}&appid={}"
                .format(self.location_lat, self.location_long, self.units, self.openweathermap_apikey))
         response_data = self.get_response_data(url)
         logging.debug(response_data)
-        weather_data = response_data["daily"][0]
-        logging.debug("get_weather() - {}".format(weather_data))
-
+        
+        # --- Corrected Data Extraction ---
+        
+        # 1. Get the temperature/main data (a dictionary)
+        main_data = response_data["main"] 
+        # 2. Get the condition data (the first dictionary in the "weather" list)
+        condition_data = response_data["weather"][0]
+        
+        logging.debug("Main Data - {}".format(main_data))
+        logging.debug("Condition Data - {}".format(condition_data))
+    
         # { "temperatureMin": "2.0", "temperatureMax": "15.1", "icon": "mostly_cloudy", "description": "Cloudy with light breezes" }
         weather = {}
-        weather["temperatureMin"] = weather_data["temp"]["min"]
-        weather["temperatureMax"] = weather_data["temp"]["max"]
-        weather["icon"] = self.get_icon_from_openweathermap_weathercode(weather_data["weather"][0]["id"], self.is_daytime(self.location_lat, self.location_long))
-        weather["description"] = weather_data["weather"][0]["description"].title()
+        
+        # Temperature data comes from 'main_data'
+        weather["temperatureMin"] = main_data["temp_min"]
+        weather["temperatureMax"] = main_data["temp_max"]
+        
+        # Icon and description data comes from 'condition_data'
+        # Note: 'condition_data' is what you had previously called 'weather_data'
+        weather["icon"] = self.get_icon_from_openweathermap_weathercode(
+            condition_data["id"], 
+            self.is_daytime(self.location_lat, self.location_long)
+        )
+        weather["description"] = condition_data["description"].title()
+        
         logging.debug(weather)
         return weather
