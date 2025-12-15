@@ -66,7 +66,7 @@ The Waveshare display I received came with standoffs that were too small to atta
 git clone this repository in the `/home/pi` directory.
 
     cd /home/pi
-    git clone --recursive https://github.com/jadonn/literary-clock.git
+    git clone --recursive https://github.com/theJorge/literary-clock.git
     
 This should create a `/home/pi/literary-clock` directory. 
 
